@@ -1,44 +1,64 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>RSS Feed from DDay.it</title>
-</head>
-<body>
-  <h1>RSS Feed from DDay.it</h1>
-  <div id="rss-feed"></div>
+  <head>
+    <title>RSS Feed</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-  <script>
-    // Replace 'https://www.dday.it/rss' with the URL of the RSS feed you want to display
-    const rssUrl = 'https://www.dday.it/rss';
+    <script type="text/babel">
+      class RSSFeed extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            url: '',
+            feed: []
+          };
+        }
 
-    // Fetch the RSS feed
-    fetch(rssUrl)
-      .then(response => response.text())
-      .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
-      .then(data => {
-        console.log(data);
+        handleChange(event) {
+          this.setState({ url: event.target.value });
+        }
 
-        // Get the list of items in the RSS feed
-        const items = data.querySelectorAll("item");
+        handleSubmit(event) {
+          event.preventDefault();
+          axios.get(`https://cors-anywhere.herokuapp.com/${this.state.url}`)
+            .then(res => {
+              const parser = new DOMParser();
+              const xml = parser.parseFromString(res.data, "text/xml");
+              const items = xml.querySelectorAll("item");
+              this.setState({ feed: items });
+            })
+            .catch(err => console.log(err));
+        }
 
-        // Create a list element to hold the items
-        const list = document.createElement("ul");
+        render() {
+          return (
+            <div>
+              <form onSubmit={event => this.handleSubmit(event)}>
+                <label>
+                  RSS Feed URL:
+                  <input type="text" value={this.state.url} onChange={event => this.handleChange(event)} />
+                </label>
+                <input type="submit" value="Submit" />
+              </form>
+              <ul>
+                {this.state.feed.map(item => (
+                  <li key={item.querySelector("guid").textContent}>
+                    <a href={item.querySelector("link").textContent}>{item.querySelector("title").textContent}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        }
+      }
 
-        // Add each item to the list
-        items.forEach(item => {
-          // Get the title and link for the item
-          const title = item.querySelector("title").textContent;
-          const link = item.querySelector("link").textContent;
-
-          // Create a list item and add it to the list
-          const li = document.createElement("li");
-          li.innerHTML = `<a href="${link}">${title}</a>`;
-          list.appendChild(li);
-        });
-
-        // Add the list to the page
-        document.getElementById("rss-feed").appendChild(list);
-      });
-  </script>
-</body>
+      ReactDOM.render(<RSSFeed />, document.getElementById('root'));
+    </script>
+  </body>
 </html>
