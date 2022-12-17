@@ -1,45 +1,35 @@
-<!DOCTYPE html>
 <html>
-<head>
-  <title>RSS Feed Reader</title>
-</head>
-<body>
-  <h1>RSS Feed Reader</h1>
-  <div id="feed"></div>
-
-  <script>
-    // Replace "https://www.presse-citron.net/feed/" with the URL of the RSS feed you want to read
-    const RSS_URL = "https://www.presse-citron.net/feed/";
-
-    // Fetch the RSS feed
-    fetch(RSS_URL)
-      .then(response => response.text())
-      .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
-      .then(data => {
-        // Extract the relevant information from the RSS feed
-        const items = data.querySelectorAll("item");
-        const feed = document.querySelector("#feed");
-
-        items.forEach(item => {
-          const title = item.querySelector("title").textContent;
-          const image = item.querySelector("image").textContent;
-          const text = item.querySelector("description").textContent;
-
-          // Create a new element to display the title and image
-          const article = document.createElement("article");
-          article.innerHTML = `
-            <h2>${title}</h2>
-            <img src="${image}" alt="${title}">
-          `;
-
-          // Add an event listener to show the text when the article is clicked
-          article.addEventListener("click", () => {
-            article.innerHTML += `<p>${text}</p>`;
+  <head>
+    <title>RSS Feed Reader</title>
+  </head>
+  <body>
+    <h1>RSS Feed</h1>
+    <div id="feed"></div>
+    <script>
+      const feedUrl = 'https://www.presse-citron.net/feed/';
+      
+      // Fetch the RSS feed
+      fetch(feedUrl)
+        .then(response => response.text())
+        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+        .then(data => {
+          console.log(data);
+          const items = data.querySelectorAll("item");
+          let html = '';
+          items.forEach(item => {
+            const title = item.querySelector("title").innerHTML;
+            const image = item.querySelector("media|content").getAttribute("url");
+            const description = item.querySelector("description").innerHTML;
+            html += `
+              <div class="item">
+                <h2>${title}</h2>
+                <img src="${image}" alt="${title}" />
+                <div class="description">${description}</div>
+              </div>
+            `;
           });
-
-          feed.appendChild(article);
+          document.getElementById('feed').innerHTML = html;
         });
-      });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
