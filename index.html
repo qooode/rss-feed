@@ -1,4 +1,13 @@
-const feedUrl = "https://www.presse-citron.net/feed/";
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RSS Feed Reader</title>
+  </head>
+  <body>
+    <h1>RSS Feed</h1>
+    <div id="feed"></div>
+    <script>
+      const feedUrl = "https://www.presse-citron.net/feed/";
 fetch(feedUrl, {
   mode: 'cors' // this is the default value, but you can specify it explicitly
 })
@@ -27,3 +36,6 @@ fetch(feedUrl, {
       feedContainer.insertAdjacentHTML("beforeend", itemHtml);
     });
   });
+    </script>
+  </body>
+</html>
