@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>RSS Feed Reader</title>
@@ -6,29 +7,23 @@
     <h1>RSS Feed</h1>
     <div id="feed"></div>
     <script>
-      const feedUrl = 'https://www.presse-citron.net/feed/';
-      
-      // Fetch the RSS feed
+      const feedUrl = "https://www.presse-citron.net/feed/";
       fetch(feedUrl)
         .then(response => response.text())
         .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
         .then(data => {
-          console.log(data);
           const items = data.querySelectorAll("item");
-          let html = '';
+          const feedContainer = document.getElementById("feed");
           items.forEach(item => {
-            const title = item.querySelector("title").innerHTML;
-            const image = item.querySelector("media|content").getAttribute("url");
-            const description = item.querySelector("description").innerHTML;
-            html += `
-              <div class="item">
-                <h2>${title}</h2>
-                <img src="${image}" alt="${title}" />
-                <div class="description">${description}</div>
-              </div>
+            const title = item.querySelector("title").textContent;
+            const link = item.querySelector("link").textContent;
+            const description = item.querySelector("description").textContent;
+            const itemHtml = `
+              <h2><a href="${link}">${title}</a></h2>
+              <p>${description}</p>
             `;
+            feedContainer.insertAdjacentHTML("beforeend", itemHtml);
           });
-          document.getElementById('feed').innerHTML = html;
         });
     </script>
   </body>
