@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>RSS Feed Reader</title>
-  </head>
-  <body>
-    <h1>RSS Feed</h1>
-    <div id="feed"></div>
-    <script>
-      const feedUrl = "https://www.presse-citron.net/feed/";
-fetch(feedUrl, {
-  mode: 'cors' // this is the default value, but you can specify it explicitly
-})
-  .then(response => response.text())
-  .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
-  .then(data => {
-    const channel = data.querySelector("channel");
-    const title = channel.querySelector("title").textContent;
-    const items = data.querySelectorAll("item");
-    const feedContainer = document.getElementById("feed");
-    feedContainer.insertAdjacentHTML("beforeend", `<h1>${title}</h1>`);
-    items.forEach(item => {
-      const title = item.querySelector("title").textContent;
-      const link = item.querySelector("link").textContent;
-      const description = item.querySelector("description").textContent;
-      const pubDate = item.querySelector("pubDate").textContent;
-      const creator = item.querySelector("dc:creator").textContent;
-      const categories = item.querySelectorAll("category");
-      const categoryList = Array.from(categories).map(category => category.textContent).join(", ");
-      const itemHtml = `
-        <h2><a href="${link}">${title}</a></h2>
-        <p>${description}</p>
-        <p>By ${creator} on ${pubDate}</p>
-        <p>Categories: ${categoryList}</p>
-      `;
-      feedContainer.insertAdjacentHTML("beforeend", itemHtml);
-    });
-  });
-    </script>
-  </body>
+<head>
+  <title>RSS Feed from DDay.it</title>
+</head>
+<body>
+  <h1>RSS Feed from DDay.it</h1>
+  <div id="rss-feed"></div>
+
+  <script>
+    // Replace 'https://www.dday.it/rss' with the URL of the RSS feed you want to display
+    const rssUrl = 'https://www.dday.it/rss';
+
+    // Fetch the RSS feed
+    fetch(rssUrl)
+      .then(response => response.text())
+      .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+      .then(data => {
+        console.log(data);
+
+        // Get the list of items in the RSS feed
+        const items = data.querySelectorAll("item");
+
+        // Create a list element to hold the items
+        const list = document.createElement("ul");
+
+        // Add each item to the list
+        items.forEach(item => {
+          // Get the title and link for the item
+          const title = item.querySelector("title").textContent;
+          const link = item.querySelector("link").textContent;
+
+          // Create a list item and add it to the list
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="${link}">${title}</a>`;
+          list.appendChild(li);
+        });
+
+        // Add the list to the page
+        document.getElementById("rss-feed").appendChild(list);
+      });
+  </script>
+</body>
 </html>
