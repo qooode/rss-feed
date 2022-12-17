@@ -12,15 +12,24 @@
         .then(response => response.text())
         .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
         .then(data => {
+          const channel = data.querySelector("channel");
+          const title = channel.querySelector("title").textContent;
           const items = data.querySelectorAll("item");
           const feedContainer = document.getElementById("feed");
+          feedContainer.insertAdjacentHTML("beforeend", `<h1>${title}</h1>`);
           items.forEach(item => {
             const title = item.querySelector("title").textContent;
             const link = item.querySelector("link").textContent;
             const description = item.querySelector("description").textContent;
+            const pubDate = item.querySelector("pubDate").textContent;
+            const creator = item.querySelector("dc:creator").textContent;
+            const categories = item.querySelectorAll("category");
+            const categoryList = Array.from(categories).map(category => category.textContent).join(", ");
             const itemHtml = `
               <h2><a href="${link}">${title}</a></h2>
               <p>${description}</p>
+              <p>By ${creator} on ${pubDate}</p>
+              <p>Categories: ${categoryList}</p>
             `;
             feedContainer.insertAdjacentHTML("beforeend", itemHtml);
           });
