@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
     <title>RSS Feed</title>
   </head>
   <body>
@@ -10,49 +9,44 @@
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <script type="text/babel">
-      class RssFeed extends React.Component {
-        state = {
-          feed: [],
+      // Your React code goes here
+      const Feed = ({ links }) => {
+        return (
+          <ul>
+            {links.map(link => (
+              <li key={link}>
+                <a href={link}>{link}</a>
+              </li>
+            ))}
+          </ul>
+        );
+      };
+
+      const App = () => {
+        const [links, setLinks] = React.useState([]);
+
+        const handleSubmit = event => {
+          event.preventDefault();
+          const formData = new FormData(event.target);
+          const url = formData.get("url");
+          setLinks(prevLinks => [...prevLinks, url]);
         };
 
-        componentDidMount() {
-          this.fetchFeed();
-        }
+        return (
+          <div>
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="url">
+                URL:
+                <input type="text" id="url" name="url" />
+              </label>
+              <button type="submit">Add</button>
+            </form>
+            <Feed links={links} />
+          </div>
+        );
+      };
 
-        fetchFeed = () => {
-          // Replace this URL with the URL of your own RSS feed
-          const feedUrl = "https://example.com/rss";
-
-          fetch(feedUrl)
-            .then((response) => response.text())
-            .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
-            .then((data) => {
-              const items = data.querySelectorAll("item");
-              const feed = Array.from(items).map((item) => {
-                return {
-                  title: item.querySelector("title").textContent,
-                  link: item.querySelector("link").textContent,
-                };
-              });
-
-              this.setState({ feed });
-            });
-        };
-
-        render() {
-          return (
-            <ul>
-              {this.state.feed.map((item) => (
-                <li key={item.link}>
-                  <a href={item.link}>{item.title}</a>
-                </li>
-              ))}
-            </ul>
-          );
-        }
-      }
-
-      ReactDOM.render(<RssFeed />, document.getElementById("root"));
+      ReactDOM.render(<App />, document.getElementById("root"));
     </script>
   </body>
 </html>
